@@ -1,6 +1,8 @@
 export const STATUS = {
   SUCCESS: "success",
   FAILED: "failed",
+  UNAUTHENTICATED: "unauthenticated",
+  UNAUTHORISED: "unauthorised",
 };
 
 export const STORAGE_KEYS = {

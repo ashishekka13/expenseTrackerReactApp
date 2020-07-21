@@ -32,6 +32,7 @@ import {
   AccordionActions,
   Button,
   TextField,
+  IconButton,
 } from "@material-ui/core";
 import { id } from "date-fns/locale";
 
@@ -107,7 +108,12 @@ export default function ControlledAccordions() {
               <Accordion expanded={fullNameOpen}>
                 <AccordionSummary
                   expandIcon={
-                    <EditIcon onClick={() => setFullNameOpen(true)} />
+                    <IconButton
+                      size="small"
+                      onClick={() => setFullNameOpen((prev) => !prev)}
+                    >
+                      <EditIcon />
+                    </IconButton>
                   }
                   aria-controls="panel1bh-content"
                   id="panel1bh-header"
@@ -181,15 +187,19 @@ export default function ControlledAccordions() {
                   </Typography>
                 </AccordionDetails>
               </Accordion>
-              <Accordion
-                expanded={passwordOpen}
-                onClick={() => {
-                  setPasswordOpen((prev) => !prev);
-                  setPassword("");
-                }}
-              >
+              <Accordion expanded={passwordOpen}>
                 <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
+                  expandIcon={
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        setPasswordOpen((prev) => !prev);
+                        setPassword("");
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  }
                   aria-controls="panel3bh-content"
                   id="panel3bh-header"
                 >
@@ -204,6 +214,7 @@ export default function ControlledAccordions() {
                   <Grid container direction="row" justify="flex-end">
                     <Grid item xs={8}>
                       <TextField
+                        autoFocus="true"
                         variant="outlined"
                         required
                         fullWidth
@@ -244,7 +255,14 @@ export default function ControlledAccordions() {
                 onChange={() => setEmailOpen((prev) => !prev)}
               >
                 <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
+                  expandIcon={
+                    <IconButton
+                      size="small"
+                      onClick={() => setEmailOpen((prev) => !prev)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  }
                   aria-controls="panel4bh-content"
                   id="panel4bh-header"
                 >

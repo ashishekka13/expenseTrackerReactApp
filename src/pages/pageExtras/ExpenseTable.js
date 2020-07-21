@@ -45,7 +45,15 @@ export default function ExpenseTable({
             tableData.map((row) => (
               <TableRow key={row["id"]}>
                 {tableAttributes.map((col) => (
-                  <TableCell align={col.align}>{row[col.key]}</TableCell>
+                  <TableCell
+                    align={col.align}
+                    style={{
+                      color: row.color ? col.primaryColor : col.secondaryColor,
+                      fontWeight: col.fontWeight,
+                    }}
+                  >
+                    {row[col.key]}
+                  </TableCell>
                 ))}
               </TableRow>
             ))) ||

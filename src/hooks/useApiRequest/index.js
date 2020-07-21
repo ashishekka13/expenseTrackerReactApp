@@ -2,6 +2,7 @@ import { useReducer } from "react";
 import axios from "axios";
 import reducer, { initialState } from "./reducer";
 import { fetching, success, error } from "./actionCreators";
+import { STATUS } from "../../helpers/constants";
 
 const useApiRequest = (endpoint, { verb = "get", token = {} } = {}) => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -20,7 +21,6 @@ const useApiRequest = (endpoint, { verb = "get", token = {} } = {}) => {
       return exception;
     }
   };
-
   return [state, makeRequest];
 };
 

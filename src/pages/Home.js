@@ -57,6 +57,13 @@ export default function Home() {
     });
   };
 
+  const [token, setToken] = useState({});
+
+  const getToken = () => {
+    const adminData = JSON.parse(sessionStorage.getItem(STORAGE_KEYS.ADMIN));
+    setToken(adminData);
+  };
+
   const [
     { status: getPendingBalancesStatus },
     makeGetPendingBalances,
@@ -90,6 +97,7 @@ export default function Home() {
 
   const handleOpenPendingBalancesDialog = () => {
     setPendingBalanceDialogOpen(true);
+    console.log(token, "heytoken");
   };
 
   const handleGetPendingBalances = () => {
@@ -113,12 +121,15 @@ export default function Home() {
   };
 
   const init = () => {
+    getToken();
     makeGetPendingBalanceAmount();
     makeGetTotalBalanceAmount();
     makeGetRecentExpenses().then(({ status, data, message }) => {
       if (status === STATUS.SUCCESS) setRecentTableData(data);
     });
     handleGetPendingBalances();
+
+    console.log(token, "heytoken");
   };
 
   React.useEffect(() => {
@@ -191,8 +202,17 @@ export default function Home() {
                   <Orders
                     tableData={recentTableData.map((row) => ({
                       ...row,
+                      color: token && token.id == row.primaryUser,
                       time: format(new Date(row.time), "MMM d, yyyy HH:mm"),
                       amount: "₹ " + row.amount.toFixed(2),
+                      sharedWith:
+                        token && token.id == row.primaryUser
+                          ? row.sharedUser
+                          : row.primaryUser,
+                      paidBy:
+                        token && token.id == row.primaryUser
+                          ? "You"
+                          : row.primaryUser,
                     }))}
                     tableAttributes={recentExpenseTableAttributes}
                     tableName="Recent Expenses"
@@ -224,8 +244,12 @@ const recentExpenseTableAttributes = [
     name: " Expense ID",
   },
   {
-    key: "sharedUser",
+    key: "sharedWith",
     name: "Shared With",
+  },
+  {
+    key: "paidBy",
+    name: "Paid By",
   },
   {
     key: "remarks",
@@ -235,6 +259,9 @@ const recentExpenseTableAttributes = [
     key: "amount",
     name: "Amount",
     align: "right",
+    primaryColor: "green",
+    secondaryColor: "red",
+    fontWeight: "bold",
   },
 ];
 

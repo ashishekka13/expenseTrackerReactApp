@@ -19,7 +19,7 @@ import {
 } from "../../services/expenseService";
 import { ERROR, FETCHING } from "../../hooks/useApiRequest/actionTypes";
 import { STATUS, STORAGE_KEYS } from "../../helpers/constants";
-import { CircularProgress, InputAdornment } from "@material-ui/core";
+import { CircularProgress, InputAdornment, Tooltip } from "@material-ui/core";
 
 const SignUp = ({ callBackFunction }) => {
   const classes = useStyles();
@@ -28,6 +28,7 @@ const SignUp = ({ callBackFunction }) => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [autoFillUser, setAutoFillUser] = useState(true);
 
   const [
     { status: checkUsernameAvailabilityStatus },
@@ -56,12 +57,15 @@ const SignUp = ({ callBackFunction }) => {
         break;
       case "email":
         setEmail(value);
-        setUsername(value.split("@", 1)[0]);
-        handleCheckUsername(username);
+        if (autoFillUser) {
+          setUsername(value.split("@", 1)[0]);
+          handleCheckUsername(value.split("@", 1)[0]);
+        }
         break;
       case "username":
+        setAutoFillUser(false);
         setUsername(value);
-        handleCheckUsername(username);
+        handleCheckUsername(value);
         break;
       case "password":
         setPassword(value);
@@ -154,9 +158,16 @@ const SignUp = ({ callBackFunction }) => {
                       {checkUsernameAvailabilityStatus === FETCHING ? (
                         <CircularProgress size={20} />
                       ) : !userExists && username.length > 0 ? (
-                        <CheckCircle htmlColor="green" />
+                        <Tooltip title="Username is available" aria-label="add">
+                          <CheckCircle htmlColor="green" />
+                        </Tooltip>
                       ) : (
-                        <Error color="error" />
+                        <Tooltip
+                          title="Username not available"
+                          aria-label="add"
+                        >
+                          <Error color="error" />
+                        </Tooltip>
                       )}
                     </InputAdornment>
                   ),
