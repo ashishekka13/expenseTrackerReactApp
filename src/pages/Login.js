@@ -16,6 +16,7 @@ import { useLoginRequest } from "../services/expenseService";
 import { ERROR } from "../hooks/useApiRequest/actionTypes";
 import { STATUS, STORAGE_KEYS } from "../helpers/constants";
 import { Dialog, DialogContent, DialogActions } from "@material-ui/core";
+import SnackBarAlert from "./pageExtras/SnackBarAlert";
 
 const Login = ({ history }) => {
   React.useEffect(() => {
@@ -44,12 +45,13 @@ const Login = ({ history }) => {
       ({ status, data, message }) => {
         if (status === STATUS.SUCCESS) {
           const { token } = data;
-
           sessionStorage.setItem(STORAGE_KEYS.ADMIN, JSON.stringify(token));
           history.push("/");
-        }
-        if (status === STATUS.FAILED) {
-          console.log("FAILED");
+          messageAlert("Logged in Successfully");
+        } else {
+          messageAlert(
+            message || "Check your credentials and Try Again Later."
+          );
         }
       }
     );
@@ -64,8 +66,21 @@ const Login = ({ history }) => {
     }
   };
 
+  const [snackbar, setSnackbar] = React.useState({
+    open: false,
+    message: "",
+    token: false,
+  });
+
+  const messageAlert = (message) => {
+    if (message !== undefined) {
+      setSnackbar((prev) => ({ open: true, message, token: !prev.token }));
+    }
+  };
+
   return (
     <Grid container component="main" className={classes.root}>
+      <SnackBarAlert {...snackbar} />
       <Dialog open={openSignUpDialog}>
         <DialogContent>
           <SignUp callBackFunction={() => setOpenSignUpDialog(false)} />

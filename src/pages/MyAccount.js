@@ -35,6 +35,7 @@ import {
   IconButton,
 } from "@material-ui/core";
 import { id } from "date-fns/locale";
+import SnackBarAlert from "./pageExtras/SnackBarAlert";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -55,8 +56,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ControlledAccordions() {
+export default function MyAccount() {
   const classes = useStyles();
+
+  const [snackbar, setSnackbar] = React.useState({
+    open: false,
+    message: "",
+    token: false,
+  });
+
+  const messageAlert = (message) => {
+    if (message !== undefined) {
+      setSnackbar((prev) => ({ open: true, message, token: !prev.token }));
+    }
+  };
 
   const [fullNameOpen, setFullNameOpen] = React.useState(false);
   const [usernameOpen, setUsernameOpen] = useState(false);
@@ -81,18 +94,27 @@ export default function ControlledAccordions() {
   const [{}, makeUpdateEmail] = useUpdateEmail();
   const [{}, makeUpdatePassword] = useUpdatePassword();
 
+  const callBack = ({ status, message }) => {
+    if (status === STATUS.SUCCESS) {
+      messageAlert("Profile Updated Successfully");
+    } else {
+      messageAlert(message || "Unable to reach servers");
+    }
+  };
+
   const handleUpdateName = () => {
-    makeUpdateFullName({ firstName, lastName });
+    makeUpdateFullName({ firstName, lastName }).then(callBack);
   };
   const handleUpdateEmail = () => {
-    makeUpdateEmail({ email });
+    makeUpdateEmail({ email }).then(callBack);
   };
   const handleUpdatePassword = () => {
-    makeUpdatePassword({ password });
+    makeUpdatePassword({ password }).then(callBack);
   };
 
   return (
     <div>
+      <SnackBarAlert {...snackbar} />
       {getPersonalDetailsStatus === FETCHING ? (
         <Loader />
       ) : (

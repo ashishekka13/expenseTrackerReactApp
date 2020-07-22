@@ -1,43 +1,40 @@
-import React, { useEffect, useState, useRef } from "react";
-
-import { STATUS, PRODUCT_PAGE_ERRORS } from "../../helpers/constants";
-// import Loader from "../extras/Loader";
-import { FETCHING } from "../../hooks/useApiRequest/actionTypes";
-
-import { makeStyles, createMuiTheme, useTheme } from "@material-ui/core/styles";
 import {
-  Grid,
-  Fab,
-  TextField,
-  InputAdornment,
-  MenuItem,
   Button,
-  ExpansionPanel,
-  ExpansionPanelSummary,
-  ExpansionPanelDetails,
-  ExpansionPanelActions,
-  Typography,
-  Divider,
-  CssBaseline,
-  Slide,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Fab,
+  Grid,
+  InputAdornment,
+  Slide,
+  TextField,
 } from "@material-ui/core";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
+// import SnackAlert from "../formElements/snackBarAlert";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import AddIcon from "@material-ui/icons/Add";
 // import MaterialTable from "material-table";
 import clsx from "clsx";
-// import SnackAlert from "../formElements/snackBarAlert";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
-
+import React, { useState } from "react";
+import { STATUS } from "../../helpers/constants";
 import { useCreateNewExpense } from "../../services/expenseService";
 
 const FriendsBalances = ({ callBack }) => {
   const [remarks, setRemarks] = useState("");
   const [amount, setAmount] = useState("");
   const [time, setTime] = useState("");
+  const [snackbar, setSnackbar] = React.useState({
+    open: false,
+    message: "",
+    token: false,
+  });
 
+  const messageAlert = (message) => {
+    if (message !== undefined) {
+      setSnackbar((prev) => ({ open: true, message, token: !prev.token }));
+    }
+  };
   const [
     { response: createNewExpenseResponse },
     makeCreateNewExpense,
@@ -99,6 +96,7 @@ const FriendsBalances = ({ callBack }) => {
 
   return (
     <div>
+      <SnackBarAlert {...snackbar} />
       <Fab
         color="primary"
         aria-label="Add"

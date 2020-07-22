@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogTitle } from "@material-ui/core";
 import Link from "@material-ui/core/Link";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
-import Title from "./Title";
-import { startOfToday, format } from "date-fns";
+import { format, startOfToday } from "date-fns";
+import React from "react";
 import ExpenseTable from "./ExpenseTable";
-import { Dialog, DialogContent, DialogTitle } from "@material-ui/core";
+import Title from "./Title";
 
 function preventDefault(event) {
   event.preventDefault();
@@ -35,13 +35,14 @@ const ShowCards = ({
     return format(startOfToday(), "MMM d, yyyy");
   };
 
-  // useEffect(setDateValue, []);
-
   return (
     <React.Fragment>
       <Title>{title}</Title>
       <Typography component="p" variant="h4">
-        ₹ {amount || "0.00"}
+        ₹{" "}
+        {isNaN(parseFloat(amount).toFixed(2))
+          ? "0.00"
+          : parseFloat(amount).toFixed(2)}
       </Typography>
       <Typography color="textSecondary" className={classes.depositContext}>
         {setDateValue()}

@@ -73,13 +73,25 @@ import {
   KeyboardTimePicker,
   KeyboardDatePicker,
 } from "@material-ui/pickers";
+import SnackBarAlert from "./pageExtras/SnackBarAlert";
+import { Unsubscribe } from "@material-ui/icons";
 
 const drawerWidth = 240;
 
 export default function Home() {
   const classes = useStyles();
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+  const [snackbar, setSnackbar] = React.useState({
+    open: false,
+    message: "",
+    token: false,
+  });
 
+  const messageAlert = (message) => {
+    if (message !== undefined) {
+      setSnackbar((prev) => ({ open: true, message, token: !prev.token }));
+    }
+  };
   const [
     { status: getExpensesByDateStatus },
     makeGetExpensesByDate,
@@ -94,10 +106,12 @@ export default function Home() {
   const [unsettled, setUnsettled] = React.useState(false);
 
   const handleGetExpensesByDate = () => {
-    makeGetExpensesByDate({ startDate, endDate, isSettled: unsettled }).then(
-      ({ status, data }) => {
+    makeGetExpensesByDate({ startDate, endDate, settled: unsettled }).then(
+      ({ status, data, message }) => {
         if (status === STATUS.SUCCESS) {
           setTableData(data);
+        } else {
+          messageAlert(message || "Unable to reach to the servers");
         }
       }
     );
@@ -226,12 +240,16 @@ export default function Home() {
     const [userExists, setUserExists] = useState(false);
 
     const handleCheckUsername = (username) => {
-      makeCheckUsernameAvailabilty({ username }).then(({ status, data }) => {
-        if (status == STATUS.SUCCESS) {
-          setUserExists(data);
-          console.log(data);
+      makeCheckUsernameAvailabilty({ username }).then(
+        ({ status, data, message }) => {
+          if (status == STATUS.SUCCESS) {
+            setUserExists(data);
+            console.log(data);
+          } else {
+            messageAlert(message, "Unable to check if username is valid");
+          }
         }
-      });
+      );
     };
 
     const handleChange = ({ target }) => {
@@ -251,6 +269,9 @@ export default function Home() {
           if (status === STATUS.SUCCESS) {
             callBack();
             closeDialog();
+            messageAlert("User was tagged successfully.");
+          } else {
+            messageAlert(message || "There was some errors.");
           }
         }
       );
@@ -315,15 +336,19 @@ export default function Home() {
   ] = useSettleUpExpense();
 
   const handleSettleUpBalances = (id) => {
-    makeSettleUpExpense({ id }).then(({ status }) => {
+    makeSettleUpExpense({ id }).then(({ status, message }) => {
       if (status === STATUS.SUCCESS) {
         handleGetExpensesByDate(); //Implement a local refresh instead later.
+        messageAlert("Expense settled");
+      } else {
+        messageAlert(message || "Unable to reach the servers");
       }
     });
   };
 
   return (
     <div>
+      <SnackBarAlert {...snackbar} />
       {getExpensesByDateStatus === FETCHING ? (
         <Loader />
       ) : (

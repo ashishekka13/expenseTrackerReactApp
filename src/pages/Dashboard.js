@@ -33,9 +33,11 @@ import { STATUS, STORAGE_KEYS } from "../helpers/constants";
 import PrivateRoute from "../extras/PrivateRoute";
 import { ROUTES } from "../helpers/constants";
 import routes from "../extras/menuRoutes";
+import RenderNotifications from "./pageExtras/Notifications";
 
 import Home from "./Home";
 import Expenses from "./Expenses";
+import { Popover, Button } from "@material-ui/core";
 const drawerWidth = 240;
 
 export default function Dashboard() {
@@ -96,11 +98,8 @@ export default function Dashboard() {
           >
             My Expense Tracker
           </Typography>
-          <Link to={ROUTES.LOGIN}>
-            <IconButton color="inherit">
-              <LogoutIcon />
-            </IconButton>
-          </Link>
+
+          <RenderNotifications />
         </Toolbar>
       </AppBar>
       <Drawer

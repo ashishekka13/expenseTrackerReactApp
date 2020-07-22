@@ -37,9 +37,23 @@ import { STATUS, STORAGE_KEYS } from "../helpers/constants";
 import Loader from "../extras/Loader";
 import { format } from "date-fns";
 
+import { CheckCircle, Error } from "@material-ui/icons";
+import SnackBarAlert from "./pageExtras/SnackBarAlert";
+
 const drawerWidth = 240;
 
 export default function Home() {
+  const [snackbar, setSnackbar] = React.useState({
+    open: false,
+    message: "",
+    token: false,
+  });
+
+  const messageAlert = (message) => {
+    if (message !== undefined) {
+      setSnackbar((prev) => ({ open: true, message, token: !prev.token }));
+    }
+  };
   const [
     { response: pendingBalanceAmountResponse },
     makeGetPendingBalanceAmount,
@@ -111,7 +125,7 @@ export default function Home() {
             obj2.forEach((a, i) =>
               setPendingBalancesTableData((prev) => [
                 ...prev,
-                { ...a, pending: obj1[i].pending },
+                { ...a, pending: obj1 && obj1.length ? obj1[i].pending : "" },
               ])
             );
           }
@@ -126,11 +140,32 @@ export default function Home() {
     makeGetTotalBalanceAmount();
     makeGetRecentExpenses().then(({ status, data, message }) => {
       if (status === STATUS.SUCCESS) setRecentTableData(data);
+      else messageAlert(message || "Unable to connect to servers.");
     });
     handleGetPendingBalances();
-
-    console.log(token, "heytoken");
   };
+
+  // const formatForPendingTableData = (row) => {
+  //   if (!isNaN(row.pending)) {
+  //     const { pending, total } = row || { pending: 0.0, total: 0.0 };
+
+  //     return {
+  //       ...row,
+  //       pending: "₹ " + parseFloat(pending).toFixed(2),
+  //       total: "₹ " + parseFloat(total).toFixed(2),
+  //     };
+  //   } else {
+  //     const { pending, total } = { pending: 0.0, total: 0.0 };
+  //     // const pending = 0.0;
+  //     // const total = 0.0;
+
+  //     return {
+  //       ...row,
+  //       pending: "₹ " + pending.toFixed(2),
+  //       total: "₹ " + total.toFixed(2),
+  //     };
+  //   }
+  // };
 
   React.useEffect(() => {
     console.log(pendingBalanceAmountStatus, "STATUSHUNT");
@@ -144,6 +179,7 @@ export default function Home() {
 
   return (
     <div>
+      <SnackBarAlert {...snackbar} />
       {recentExpensesStatus === FETCHING ||
       totalBalanceAmountStatus === FETCHING ||
       pendingBalanceAmountStatus === FETCHING ? (
@@ -186,8 +222,8 @@ export default function Home() {
                     }
                     tableData={pendingBalancesTableData.map((row) => ({
                       ...row,
-                      pending: "₹ " + row.pending.toFixed(2),
-                      total: "₹ " + row.total.toFixed(2),
+                      pending: "₹ " + parseFloat(row.pending).toFixed(2),
+                      total: "₹ " + parseFloat(row.total).toFixed(2),
                     }))}
                     tableAttributes={pendingTableBalancesAttributes}
                     tableTitle="Unsettled Balances"
@@ -204,7 +240,9 @@ export default function Home() {
                       ...row,
                       color: token && token.id == row.primaryUser,
                       time: format(new Date(row.time), "MMM d, yyyy HH:mm"),
-                      amount: "₹ " + row.amount.toFixed(2),
+                      amount:
+                        "₹ " + parseFloat(row.amount) &&
+                        parseFloat(row.amount).toFixed(2),
                       sharedWith:
                         token && token.id == row.primaryUser
                           ? row.sharedUser
@@ -213,6 +251,11 @@ export default function Home() {
                         token && token.id == row.primaryUser
                           ? "You"
                           : row.primaryUser,
+                      isChecked: row.settled ? (
+                        <CheckCircle color="green" />
+                      ) : (
+                        ""
+                      ),
                     }))}
                     tableAttributes={recentExpenseTableAttributes}
                     tableName="Recent Expenses"
@@ -235,6 +278,7 @@ const pendingTableBalancesAttributes = [
 ];
 
 const recentExpenseTableAttributes = [
+  { key: "isChecked" },
   {
     key: "time",
     name: "Date",

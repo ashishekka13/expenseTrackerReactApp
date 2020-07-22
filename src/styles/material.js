@@ -47,6 +47,7 @@ const styles = makeStyles((theme) => ({
     display: "flex",
     height: `100vh - 40px`,
   },
+  snackAlert: { zIndex: theme.zIndex.tooltip + 1 },
 }));
 
 export default styles;

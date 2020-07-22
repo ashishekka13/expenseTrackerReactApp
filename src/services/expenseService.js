@@ -94,6 +94,18 @@ export const useGetExpensesByDate = () =>
     token: getCredentials(),
   });
 
+export const useFetchUnseenNotifications = () =>
+  useApiRequest(`${BASE_URL}/fetchUnseenNotifications`, {
+    verb: "post",
+    token: getCredentials(),
+  });
+
+export const useMarkNotificationAsSeen = () =>
+  useApiRequest(`${BASE_URL}/markNotificationSeen`, {
+    verb: "post",
+    token: getCredentials(),
+  });
+
 export const useSettleUpExpense = () =>
   useApiRequest(`${BASE_URL}/settleUpExpense`, {
     verb: "post",

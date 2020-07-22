@@ -1,25 +1,22 @@
-import React, { useState } from "react";
+import { CircularProgress, InputAdornment, Tooltip } from "@material-ui/core";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import Link from "@material-ui/core/Link";
-import Grid from "@material-ui/core/Grid";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Grid from "@material-ui/core/Grid";
+import { makeStyles } from "@material-ui/core/styles";
+import TextField from "@material-ui/core/TextField";
+import Typography from "@material-ui/core/Typography";
 import { CheckCircle, Error } from "@material-ui/icons";
-
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import React, { useState } from "react";
+import { STATUS } from "../../helpers/constants";
+import { FETCHING } from "../../hooks/useApiRequest/actionTypes";
 import {
-  useCreateNewAccount,
   useCheckUsernameAvailability,
+  useCreateNewAccount,
 } from "../../services/expenseService";
-import { ERROR, FETCHING } from "../../hooks/useApiRequest/actionTypes";
-import { STATUS, STORAGE_KEYS } from "../../helpers/constants";
-import { CircularProgress, InputAdornment, Tooltip } from "@material-ui/core";
+import SnackBarAlert from "../pageExtras/SnackBarAlert";
 
 const SignUp = ({ callBackFunction }) => {
   const classes = useStyles();
@@ -30,6 +27,18 @@ const SignUp = ({ callBackFunction }) => {
   const [password, setPassword] = useState("");
   const [autoFillUser, setAutoFillUser] = useState(true);
 
+  const [snackbar, setSnackbar] = React.useState({
+    open: false,
+    message: "",
+    token: false,
+  });
+
+  const messageAlert = (message) => {
+    if (message !== undefined) {
+      setSnackbar((prev) => ({ open: true, message, token: !prev.token }));
+    }
+  };
+
   const [
     { status: checkUsernameAvailabilityStatus },
     makeCheckUsernameAvailabilty,
@@ -38,12 +47,16 @@ const SignUp = ({ callBackFunction }) => {
   const [userExists, setUserExists] = useState(false);
 
   const handleCheckUsername = (username) => {
-    makeCheckUsernameAvailabilty({ username }).then(({ status, data }) => {
-      if (status == STATUS.SUCCESS) {
-        setUserExists(data);
-        console.log(data);
+    makeCheckUsernameAvailabilty({ username }).then(
+      ({ status, data, message }) => {
+        if (status == STATUS.SUCCESS) {
+          setUserExists(data);
+          console.log(data);
+        } else {
+          messageAlert(message || "Unable to check for availabilty");
+        }
       }
-    });
+    );
   };
 
   const handleInputChange = ({ target }) => {
@@ -81,18 +94,31 @@ const SignUp = ({ callBackFunction }) => {
   ] = useCreateNewAccount();
 
   const handleCreateNewUserAccount = () => {
-    makeCreateNewAccount(username, password, firstName, lastName, email).then(
-      ({ status, data, message }) => {
-        if (status === STATUS.SUCCESS) {
-          callBackFunction();
-        }
+    makeCreateNewAccount({
+      username,
+      password,
+      firstName,
+      lastName,
+      email,
+    }).then(({ status, data, message }) => {
+      if (status === STATUS.SUCCESS) {
+        messageAlert(
+          "Account Created Successfully. Please wait... Redirecting"
+        );
+
+        setTimeout(callBackFunction, 2500);
+      } else {
+        messageAlert(
+          message || "Failed to connect to the server. Try Again later"
+        );
       }
-    );
+    });
   };
 
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
+      <SnackBarAlert {...snackbar} />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
           <LockOutlinedIcon />
@@ -100,7 +126,7 @@ const SignUp = ({ callBackFunction }) => {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
-        <form className={classes.form} noValidate>
+        <div className={classes.form}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -109,7 +135,7 @@ const SignUp = ({ callBackFunction }) => {
                 variant="outlined"
                 required
                 fullWidth
-                id="firstName"
+                // id="firstName"
                 label="First Name"
                 autoFocus
                 value={firstName}
@@ -121,7 +147,7 @@ const SignUp = ({ callBackFunction }) => {
                 variant="outlined"
                 required
                 fullWidth
-                id="lastName"
+                // id="lastName"
                 label="Last Name"
                 name="lastName"
                 autoComplete="lname"
@@ -134,7 +160,7 @@ const SignUp = ({ callBackFunction }) => {
                 variant="outlined"
                 required
                 fullWidth
-                id="email"
+                // id="email"
                 label="Email Address"
                 name="email"
                 value={email}
@@ -146,7 +172,7 @@ const SignUp = ({ callBackFunction }) => {
                 variant="outlined"
                 required
                 fullWidth
-                id="username"
+                // id="username"
                 label="Username"
                 name="username"
                 autoComplete="username"
@@ -180,10 +206,10 @@ const SignUp = ({ callBackFunction }) => {
                 required
                 fullWidth
                 name="password"
-                label="Password"
+                // label="Password"
                 type="password"
-                id="password"
-                autoComplete="current-password"
+                // id="password"
+                // autoComplete="current-password"
                 value={password}
                 onChange={handleInputChange}
               />
@@ -199,7 +225,7 @@ const SignUp = ({ callBackFunction }) => {
           >
             Sign Up
           </Button>
-        </form>
+        </div>
       </div>
     </Container>
   );
